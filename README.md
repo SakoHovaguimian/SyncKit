@@ -67,7 +67,7 @@ SyncKit is built around three internal layers:
 
 **Publisher ownership:** `SyncStorageKeyObserver` holds a strong reference to the `ObservableObjectPublisher` it needs to signal. When `@SyncStorage` is used inside an `ObservableObject`, the enclosing object's publisher is wired in via the static subscript, so calling `objectWillChange.send()` on both the wrapper's internal object and the enclosing object keeps everything consistent.
 
-**Main actor isolation:** Every type in SyncKit runs on `@MainActor`. The package declares `defaultIsolation: MainActor.self`, which means all of this happens without you needing to think about it.
+**Concurrency safety:** Every type in SyncKit runs on `@MainActor` via `defaultIsolation: MainActor.self`. The package also enables three upcoming Swift 6.2 concurrency features — `NonisolatedNonsendingByDefault`, `InferIsolatedConformances`, and `DisableOutwardActorInference` — which together make `@MainActor` isolation behave correctly as the package-wide default. Notification callbacks that deliver on `queue: .main` use `MainActor.assumeIsolated` rather than `Task { @MainActor in }`, avoiding any cross-isolation sends. Closures that capture a `wrappedValue` default require `Value: Sendable` on `RawRepresentable` and `Codable` initializers to satisfy the strict concurrency model.
 
 ---
 
@@ -75,13 +75,13 @@ SyncKit is built around three internal layers:
 
 | Requirement | Minimum |
 |---|---|
-| iOS | 18.0 |
-| macOS | 15.0 |
-| watchOS | 11.0 |
-| tvOS | 18.0 |
-| visionOS | 2.0 |
+| iOS | 26.0 |
+| macOS | 26.0 |
+| watchOS | 26.0 |
+| tvOS | 26.0 |
+| visionOS | 26.0 |
 | Swift | 6.2 |
-| Xcode | 16.3+ |
+| Xcode | 26.0+ |
 
 ---
 
@@ -296,7 +296,7 @@ Arrays and dictionaries of property-list-compatible types are supported.
 
 ### RawRepresentable Enums
 
-Enums conforming to `RawRepresentable` with `String` or `Int` raw values work out of the box.
+Enums conforming to `RawRepresentable & Sendable` with `String` or `Int` raw values work out of the box. The `Sendable` requirement is enforced by the compiler — virtually all enums with value-type raw values satisfy it automatically.
 
 ```swift
 enum AppTheme: String {
@@ -321,7 +321,7 @@ When the stored raw value can't be mapped back to a valid case (e.g. after remov
 
 ### Codable Models
 
-Any `Codable` type can be stored via JSON encoding. This is the recommended approach for typed arrays, nested structures, and complex models.
+Any `Codable & Sendable` type can be stored via JSON encoding. This is the recommended approach for typed arrays, nested structures, and complex models. Value types (`struct`, `enum`) that contain only `Sendable` members satisfy `Sendable` automatically — no annotation needed.
 
 ```swift
 struct UserProfile: Codable {
