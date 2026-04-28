@@ -14,8 +14,8 @@ extension SyncStorage where Value == Bool {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.bool(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.bool(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -29,8 +29,8 @@ extension SyncStorage where Value == Int {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.int(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.int(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -44,8 +44,8 @@ extension SyncStorage where Value == Int64 {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.int64(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.int64(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -59,8 +59,8 @@ extension SyncStorage where Value == Double {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.double(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.double(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -74,8 +74,8 @@ extension SyncStorage where Value == String {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.string(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.string(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -89,8 +89,8 @@ extension SyncStorage where Value == URL {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.url(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.url(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -104,8 +104,8 @@ extension SyncStorage where Value == Date {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.date(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.date(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -119,8 +119,8 @@ extension SyncStorage where Value == Data {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.data(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.data(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }

@@ -1,5 +1,5 @@
 //
-//  SyncStorageSync+Values.swift
+//  SyncStore+Values.swift
 //  SyncKit
 //
 //  Created by Sako Hovaguimian on 4/27/26.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension SyncStorageSync {
+extension SyncStore {
 
     public func object(forKey key: String) -> Any? {
         return self.ubiquitousObject(for: key)
@@ -185,7 +185,7 @@ extension SyncStorageSync {
 
 }
 
-private extension SyncStorageSync {
+private extension SyncStore {
 
     func setPropertyListValue(_ value: Any?,
                               for key: String) {

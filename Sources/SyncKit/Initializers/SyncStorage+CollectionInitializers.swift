@@ -14,8 +14,8 @@ extension SyncStorage where Value == [Any] {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.array(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.array(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -29,8 +29,8 @@ extension SyncStorage where Value == [String: Any] {
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.dictionary(for: key) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.dictionary(for: key) ?? wrappedValue },
+            syncSet: { syncStore.set($0, for: key) }
         )
 
     }
@@ -43,8 +43,8 @@ extension SyncStorage where Value == [Any]? {
         
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.array(for: key) },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.array(for: key) },
+            syncSet: { syncStore.set($0, for: key) }
         )
         
     }
@@ -57,8 +57,8 @@ extension SyncStorage where Value == [String: Any]? {
         
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.dictionary(for: key) },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.dictionary(for: key) },
+            syncSet: { syncStore.set($0, for: key) }
         )
         
     }

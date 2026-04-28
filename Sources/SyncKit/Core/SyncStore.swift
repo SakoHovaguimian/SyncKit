@@ -1,5 +1,5 @@
 //
-//  SyncStorageSync.swift
+//  SyncStore.swift
 //  SyncKit
 //
 //  Created by Sako Hovaguimian on 4/27/26.
@@ -12,9 +12,9 @@ import Foundation
 import UIKit
 #endif
 
-public final class SyncStorageSync: ObservableObject {
+public final class SyncStore: ObservableObject {
 
-    public static let shared = SyncStorageSync()
+    public static let shared = SyncStore()
 
     private let ubiquitousKeyValueStore: NSUbiquitousKeyValueStore
     private var observers: [String: [ObjectIdentifier: SyncStorageKeyObserver]] = [:]

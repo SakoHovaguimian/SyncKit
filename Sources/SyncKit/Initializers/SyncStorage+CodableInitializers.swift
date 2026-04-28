@@ -18,7 +18,7 @@ extension SyncStorage where Value: Codable & Sendable {
             keyName: key,
             syncGet: {
 
-                guard let data = syncStorageSync.data(for: key) else {
+                guard let data = syncStore.data(for: key) else {
                     return wrappedValue
                 }
 
@@ -28,7 +28,7 @@ extension SyncStorage where Value: Codable & Sendable {
             syncSet: { value in
 
                 guard let data = try? encoder.encode(value) else { return }
-                syncStorageSync.set(data, for: key)
+                syncStore.set(data, for: key)
 
             }
         )
@@ -47,7 +47,7 @@ extension SyncStorage {
             keyName: key,
             syncGet: {
 
-                guard let data = syncStorageSync.data(for: key) else {
+                guard let data = syncStore.data(for: key) else {
                     return nil
                 }
 
@@ -57,12 +57,12 @@ extension SyncStorage {
             syncSet: { value in
 
                 guard let value else {
-                    syncStorageSync.remove(for: key)
+                    syncStore.remove(for: key)
                     return
                 }
 
                 guard let data = try? encoder.encode(value) else { return }
-                syncStorageSync.set(data, for: key)
+                syncStore.set(data, for: key)
 
             }
         )

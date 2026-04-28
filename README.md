@@ -20,7 +20,7 @@ A Swift property wrapper for iCloud key-value storage — built to feel exactly 
   - [Collections](#collections)
   - [RawRepresentable Enums](#rawrepresentable-enums)
   - [Codable Models](#codable-models)
-- [SyncStorageSync — Direct Store Access](#syncstoragesync--direct-store-access)
+- [SyncStore — Direct Store Access](#syncstore--direct-store-access)
 - [SyncEvent — Observing Changes](#syncevent--observing-changes)
 - [Configuration](#configuration)
 - [Entitlements](#entitlements)
@@ -56,14 +56,14 @@ SyncKit is built around three internal layers:
 @SyncStorage (property wrapper)
     └── SyncStorageObject (ObservableObject, owns the key + closures)
             └── SyncStorageKeyObserver (bridges iCloud notifications → publisher sends)
-                    └── SyncStorageSync (wraps NSUbiquitousKeyValueStore, singleton)
+                    └── SyncStore (wraps NSUbiquitousKeyValueStore, singleton)
 ```
 
-**Write path:** When you set a value via `@SyncStorage`, it calls into `SyncStorageSync`, which writes to `NSUbiquitousKeyValueStore` and immediately calls `synchronize()`. A `SyncEvent` is published on `SyncStorageSync.shared.lastEvent` and all registered key observers are notified — causing any SwiftUI view or `ObservableObject` holding that key to re-render.
+**Write path:** When you set a value via `@SyncStorage`, it calls into `SyncStore`, which writes to `NSUbiquitousKeyValueStore` and immediately calls `synchronize()`. A `SyncEvent` is published on `SyncStore.shared.lastEvent` and all registered key observers are notified — causing any SwiftUI view or `ObservableObject` holding that key to re-render.
 
 **Read path:** `@SyncStorage` reads directly from `NSUbiquitousKeyValueStore` on every access, so it always reflects the live store value with no intermediate cache.
 
-**Remote change path:** `SyncStorageSync` listens for `NSUbiquitousKeyValueStore.didChangeExternallyNotification`. When a remote change arrives, it notifies only the observers registered for the changed keys, publishing a `SyncEvent` with `.externalChange` source. UI updates are scoped to exactly the views and objects that own those keys.
+**Remote change path:** `SyncStore` listens for `NSUbiquitousKeyValueStore.didChangeExternallyNotification`. When a remote change arrives, it notifies only the observers registered for the changed keys, publishing a `SyncEvent` with `.externalChange` source. UI updates are scoped to exactly the views and objects that own those keys.
 
 **Publisher ownership:** `SyncStorageKeyObserver` holds a strong reference to the `ObservableObjectPublisher` it needs to signal. When `@SyncStorage` is used inside an `ObservableObject`, the enclosing object's publisher is wired in via the static subscript, so calling `objectWillChange.send()` on both the wrapper's internal object and the enclosing object keeps everything consistent.
 
@@ -215,9 +215,9 @@ struct SettingsView: View {
 
 ### Observable ViewModel (Swift 5.9+)
 
-With `@Observable`, use `@SyncStorage` via the computed property pattern, reading and writing through `SyncStorageSync.shared` directly, and call `withMutation` / use the synthesized observation tracking.
+With `@Observable`, use `@SyncStorage` via the computed property pattern, reading and writing through `SyncStore.shared` directly, and call `withMutation` / use the synthesized observation tracking.
 
-> **Note:** `@SyncStorage` as a stored property wrapper is not compatible with `@Observable` because `@Observable` macro-generates its own storage. The recommended pattern for `@Observable` classes is to expose synced values as computed properties or use `SyncStorageSync.shared` directly.
+> **Note:** `@SyncStorage` as a stored property wrapper is not compatible with `@Observable` because `@Observable` macro-generates its own storage. The recommended pattern for `@Observable` classes is to expose synced values as computed properties or use `SyncStore.shared` directly.
 
 ```swift
 import Observation
@@ -227,13 +227,13 @@ import SyncKit
 final class ProfileViewModel {
 
     var username: String {
-        get { SyncStorageSync.shared.string(for: "username") ?? "Guest" }
-        set { SyncStorageSync.shared.set(newValue, for: "username") }
+        get { SyncStore.shared.string(for: "username") ?? "Guest" }
+        set { SyncStore.shared.set(newValue, for: "username") }
     }
 
     var proSubscriber: Bool {
-        get { SyncStorageSync.shared.bool(for: "proSubscriber") ?? false }
-        set { SyncStorageSync.shared.set(newValue, for: "proSubscriber") }
+        get { SyncStore.shared.bool(for: "proSubscriber") ?? false }
+        set { SyncStore.shared.set(newValue, for: "proSubscriber") }
     }
 
 }
@@ -358,31 +358,31 @@ var userProfile: UserProfile
 
 ---
 
-## SyncStorageSync — Direct Store Access
+## SyncStore — Direct Store Access
 
-`SyncStorageSync.shared` exposes the full iCloud key-value store for cases where a property wrapper isn't the right tool — e.g. app delegate startup, background tasks, or non-SwiftUI code.
+`SyncStore.shared` exposes the full iCloud key-value store for cases where a property wrapper isn't the right tool — e.g. app delegate startup, background tasks, or non-SwiftUI code.
 
 ```swift
 import SyncKit
 
 // Read
-let count = SyncStorageSync.shared.int(for: "launchCount") ?? 0
+let count = SyncStore.shared.int(for: "launchCount") ?? 0
 
 // Write
-SyncStorageSync.shared.set(count + 1, for: "launchCount")
+SyncStore.shared.set(count + 1, for: "launchCount")
 
 // Remove
-SyncStorageSync.shared.remove(for: "referralCode")
+SyncStore.shared.remove(for: "referralCode")
 
 // Force a sync (called automatically on write when synchronizesAfterLocalWrite == true)
-SyncStorageSync.shared.synchronize()
+SyncStore.shared.synchronize()
 ```
 
 ---
 
 ## SyncEvent — Observing Changes
 
-`SyncStorageSync.shared` publishes a `SyncEvent` every time the store changes, regardless of source. Subscribe to `$lastEvent` to react to any store mutation.
+`SyncStore.shared` publishes a `SyncEvent` every time the store changes, regardless of source. Subscribe to `$lastEvent` to react to any store mutation.
 
 ```swift
 import Combine
@@ -393,7 +393,7 @@ final class SyncMonitor: ObservableObject {
     private var cancellable: AnyCancellable?
 
     init() {
-        cancellable = SyncStorageSync.shared.$lastEvent
+        cancellable = SyncStore.shared.$lastEvent
             .sink { event in
                 switch event.source {
                 case .initial:
@@ -427,7 +427,7 @@ final class SyncMonitor: ObservableObject {
 `SyncEvent` conforms to `CustomStringConvertible` for convenient logging:
 
 ```swift
-print(SyncStorageSync.shared.lastEvent)
+print(SyncStore.shared.lastEvent)
 // [14:32:01] External change (serverChange): username, isPremium
 ```
 
@@ -435,15 +435,15 @@ print(SyncStorageSync.shared.lastEvent)
 
 ## Configuration
 
-`SyncStorageSync.shared.synchronizesAfterLocalWrite` controls whether `synchronize()` is called after every local write. It defaults to `true`, which is the safest option and matches Apple's recommendation.
+`SyncStore.shared.synchronizesAfterLocalWrite` controls whether `synchronize()` is called after every local write. It defaults to `true`, which is the safest option and matches Apple's recommendation.
 
 ```swift
 // Disable if you want to batch writes and synchronize manually
-SyncStorageSync.shared.synchronizesAfterLocalWrite = false
+SyncStore.shared.synchronizesAfterLocalWrite = false
 
 // ... perform many writes ...
 
-SyncStorageSync.shared.synchronize()
+SyncStore.shared.synchronize()
 ```
 
 ---

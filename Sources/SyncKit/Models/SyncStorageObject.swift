@@ -32,14 +32,14 @@ internal final class SyncStorageObject<Value>: ObservableObject {
         self.syncSet = syncSet
 
         self.keyObserver.storageObjectWillChange = self.objectWillChange
-        syncStorageSync.addObserver(self.keyObserver, key: key)
+        syncStore.addObserver(self.keyObserver, key: key)
 
     }
 
     deinit {
 
         Task { @MainActor [keyObserver] in
-            syncStorageSync.removeObserver(keyObserver)
+            syncStore.removeObserver(keyObserver)
         }
 
     }

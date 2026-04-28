@@ -12,8 +12,8 @@ extension SyncStorage where Value: RawRepresentable & Sendable, Value.RawValue =
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.int(for: key).flatMap(Value.init(rawValue:)) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0.rawValue, for: key) }
+            syncGet: { syncStore.int(for: key).flatMap(Value.init(rawValue:)) ?? wrappedValue },
+            syncSet: { syncStore.set($0.rawValue, for: key) }
         )
 
     }
@@ -27,8 +27,8 @@ extension SyncStorage where Value: RawRepresentable & Sendable, Value.RawValue =
 
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.string(for: key).flatMap(Value.init(rawValue:)) ?? wrappedValue },
-            syncSet: { syncStorageSync.set($0.rawValue, for: key) }
+            syncGet: { syncStore.string(for: key).flatMap(Value.init(rawValue:)) ?? wrappedValue },
+            syncSet: { syncStore.set($0.rawValue, for: key) }
         )
 
     }
@@ -41,8 +41,8 @@ extension SyncStorage {
         
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.rawRepresentable(for: key) },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.rawRepresentable(for: key) },
+            syncSet: { syncStore.set($0, for: key) }
         )
         
     }
@@ -51,8 +51,8 @@ extension SyncStorage {
         
         self.init(
             keyName: key,
-            syncGet: { syncStorageSync.rawRepresentable(for: key) },
-            syncSet: { syncStorageSync.set($0, for: key) }
+            syncGet: { syncStore.rawRepresentable(for: key) },
+            syncSet: { syncStore.set($0, for: key) }
         )
         
     }

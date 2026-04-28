@@ -8,7 +8,7 @@
 import Combine
 import SwiftUI
 
-internal let syncStorageSync = SyncStorageSync.shared
+internal let syncStore = SyncStore.shared
 
 @propertyWrapper
 public struct SyncStorage<Value>: DynamicProperty {
